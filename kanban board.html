@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Kanban Board</title>
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-weight: 600;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            background: #0079BF;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            /* Align content to the right */
+            padding: 20px;
+        }
+
+        #board {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .column-container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+        }
+
+        .column {
+            background: #0268cd;
+            border-radius: 8px;
+            margin-right: 20px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
+            /* Decreased card width */
+            min-height: 100px;
+            /* Decreased card height */
+        }
+
+        .column-title {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            cursor: move;
+            color: #fffafa;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .create-column-container {
+            display: flex;
+            flex-direction: column;
+            /* Stack input and button vertically */
+            align-items: flex-end;
+            /* Align content to the right */
+            margin-bottom: 20px;
+        }
+
+        .create-column-input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 2px solid #ccc;
+            background-color: #f9fafb;
+            position: relative;
+            right: 160px;
+        }
+
+        .create-column-button {
+            background-color: #5aac44;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            bottom: 47px;
+        }
+
+        .create-column-button:hover {
+            background-color: #4a9440;
+        }
+
+        .card {
+            background-color: #ffffff;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            color: #333;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card-description {
+            font-size: 16px;
+        }
+
+        .column-placeholder {
+            background-color: #E2E4E6;
+            border: 2px dashed #ccc;
+            width: 240px;
+            height: 100%;
+        }
+
+        .card-placeholder {
+            background-color: #E2E4E6;
+            border: 2px dashed #ccc;
+            height: 100px;
+        }
+
+        .card-inputs {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+            width: 30vh;
+        }
+
+        .card-inputs input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .add-card-button {
+            background-color: #5aac44;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 5px;
+            max-width: auto;
+        }
+
+        .cancel-button {
+            background-color: #ff4444;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .edit-button {
+            background-color: #009688;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .edit-card-inputs {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .edit-card-inputs input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .save-button {
+            background-color: #009688;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+
+        }
+
+        .save-button:hover {
+            background-color: #006f64
+        }
+
+        .edit-card-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-delete {
+            background-color: crimson;
+            color: #ffffff;
+            border-radius: 13px;
+            height: 4vh;
+            width: 6vh;
+        }
+
+        .add-card {
+            background-color: #4a9440;
+            color: #ffffff;
+            padding: 1vh;
+            border-radius: 3vh;
+            height: 4vh;
+            width: 15vh;
+            position: relative;
+            bottom: 4vh;
+            left: 8vh;
+        }
+
+        .heading {
+            color: yellow;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-right: 75%;
+
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="heading"> Kanban Board</h1>
+    <div id="board" class="board">
+        <div class="create-column-container">
+            <input type="text" class="create-column-input" id="columnNameInput" placeholder=" Name">
+            <button class="create-column-button" id="addColumnButton">Add Column</button>
+        </div>
+        <div class="column-container">
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.0.0.min.js"
+        integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Function to generate random string IDs
+            function randomString() {
+                var chars = '0123456789abcdefghiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXTZ';
+                var str = '';
+                for (i = 0; i < 10; i++) {
+                    str += chars[Math.floor(Math.random() * chars.length)];
+                }
+                return str;
+            }
+
+            // Function to initialize sortable for columns and cards
+            function initSortable() {
+                // Make columns sortable
+                $('.column-container').sortable({
+                    connectWith: '.column-container',
+                    placeholder: 'column-placeholder',
+                    handle: '.column-title',
+                    tolerance: 'pointer'
+                }).disableSelection();
+
+                // Make cards sortable within columns
+                $('.column-card-list').sortable({
+                    connectWith: '.column-card-list',
+                    placeholder: 'card-placeholder',
+                    tolerance: 'pointer'
+                }).disableSelection();
+            }
+
+            // Column Class
+            function Column(name) {
+                var self = this;
+                this.id = randomString();
+                this.name = name;
+                this.$element = createColumn();
+
+                function createColumn() {
+                    var $column = $('<div>').addClass('column');
+                    var $columnTitle = $('<h2>').addClass('column-title').text(self.name);
+                    var $columnCardList = $('<ul>').addClass('column-card-list');
+                    var $columnDelete = $('<button>').addClass('btn-delete').text('x');
+                    var $columnAddCard = $('<button>').addClass('add-card').text('Add a card');
+
+                    $columnTitle.css('cursor', 'move');
+
+                    $columnDelete.click(function () {
+                        self.removeColumn();
+                    });
+
+                    $columnAddCard.click(function (event) {
+                        var $cardInputs = $('<div>').addClass('card-inputs');
+                        var $inputName = $('<input>').attr('type', 'text').attr('placeholder', 'Card Name');
+                        var $inputDescription = $('<input>').attr('type', 'text').attr('placeholder', 'Card Description');
+                        var $addButton = $('<button>').addClass('add-card-button').text('Add Card');
+                        var $cancelButton = $('<button>').addClass('cancel-button').text('Cancel');
+
+                        $addButton.click(function () {
+                            var cardName = $inputName.val();
+                            var cardDescription = $inputDescription.val();
+                            var card = new Card(cardName, cardDescription);
+                            self.addCard(card);
+                            $inputName.val('');
+                            $inputDescription.val('');
+                            $cardInputs.hide();
+                        });
+
+                        $cancelButton.click(function () {
+                            $inputName.val('');
+                            $inputDescription.val('');
+                            $cardInputs.hide();
+                        });
+
+                        $cardInputs.append($inputName).append($inputDescription).append($addButton).append($cancelButton);
+                        $columnCardList.append($cardInputs);
+                    });
+
+                    $column.append($columnTitle)
+                        .append($columnDelete)
+                        .append($columnAddCard)
+                        .append($columnCardList);
+
+                    return $column;
+                }
+            }
+
+            // Prototypes for the Column class
+            Column.prototype = {
+                addCard: function (card) {
+                    this.$element.find('.column-card-list').append(card.$element);
+                },
+                removeColumn: function () {
+                    this.$element.remove();
+                }
+            };
+
+            // Card Class
+            function Card(name, description) {
+                var self = this;
+                this.id = randomString();
+                this.name = name;
+                this.description = description;
+                this.$element = createCard();
+
+                function createCard() {
+                    var $card = $('<li>').addClass('card');
+                    var $cardName = $('<h3>').addClass('card-name').text(self.name);
+                    var $cardDescription = $('<p>').addClass('card-description').text(self.description);
+                    var $cardDelete = $('<button>').addClass('btn-delete').text('x');
+                    var $editButton = $('<button>').addClass('edit-button').text('Edit');
+
+                    $cardDelete.click(function () {
+                        self.removeCard();
+                    });
+
+                    $editButton.click(function () {
+                        var $editCardInputs = $('<div>').addClass('edit-card-inputs');
+                        var $editNameInput = $('<input>').attr('type', 'text').attr('placeholder', 'Card Name').val(self.name);
+                        var $editDescriptionInput = $('<input>').attr('type', 'text').attr('placeholder', 'Card Description').val(self.description);
+                        var $saveButton = $('<button>').addClass('save-button').text('Save');
+                        var $cancelButton = $('<button>').addClass('cancel-button').text('Cancel');
+
+                        $saveButton.click(function () {
+                            var editedName = $editNameInput.val();
+                            var editedDescription = $editDescriptionInput.val();
+                            self.editCard(editedName, editedDescription);
+                        });
+
+                        $cancelButton.click(function () {
+                            $editCardInputs.hide();
+                        });
+
+                        $editCardInputs.append($editNameInput).append($editDescriptionInput).append($saveButton).append($cancelButton);
+                        $card.append($editCardInputs);
+                    });
+
+                    $card.append($cardDelete)
+                        .append($editButton)
+                        .append($cardName)
+                        .append($cardDescription);
+                    return $card;
+                }
+            }
+
+            // Prototype for the Card class
+            Card.prototype = {
+                removeCard: function () {
+                    this.$element.remove();
+                },
+                editCard: function (name, description) {
+                    this.name = name;
+                    this.description = description;
+                    this.$element.find('.card-name').text(name);
+                    this.$element.find('.card-description').text(description);
+                    this.$element.find('.edit-card-inputs').remove();
+                }
+            };
+
+            // Kanban Board Object
+            var board = {
+                name: 'Kanban Board',
+                addColumn: function (column) {
+                    this.$element.append(column.$element);
+                    initSortable();
+                },
+                $element: $('#board .column-container')
+            };
+
+            // Event listener for adding a new column
+            $('#addColumnButton').click(function () {
+                var columnName = $('#columnNameInput').val();
+                if (columnName) {
+                    var column = new Column(columnName);
+                    board.addColumn(column);
+                    $('#columnNameInput').val('');
+                }
+            });
+
+            // Creating initial columns and cards
+            var todoColumn = new Column('To do');
+            var doingColumn = new Column('Doing');
+            var doneColumn = new Column('Done');
+
+            board.addColumn(todoColumn);
+            board.addColumn(doingColumn);
+            board.addColumn(doneColumn);
+
+            var card1 = new Card('New task', 'This is a new task description.');
+            var card2 = new Card('Create kanban boards', 'This card is for creating kanban boards.');
+
+            todoColumn.addCard(card1);
+            doingColumn.addCard(card2);
+        });
+    </script>
+</body>
+
+</html>
